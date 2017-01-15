@@ -5,12 +5,17 @@
   "short_name"      : "ng-Todo",
   "version"         : "0.1",
   "browser_action": {
-    "default_popup": "index.html",
-    "default_icon" : "images/logo.png"
+  "default_popup": "index.html",
+  "default_icon" : "images/logo.png"
   },
   "permissions": [
     "debugger",
-    "storage"
+    "storage",
+    "https://*/"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'",
+  "content_scripts": [{
+   "js": ["htmlInjector.js"],
+   "matches": ["http://google.com/*"]
+ }]
 }
