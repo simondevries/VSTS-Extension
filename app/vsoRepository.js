@@ -3,7 +3,7 @@ angular.module('app').service('vsoRepository', function ($q, $http) {
     this.findAll = function() {
 
       var workItems = "";
-      var personalaccesstoken = 'chusz3qyhkd5ravemieglglavuqkltcfmfan7lmcc77ajzmvhh5a';
+      // var personalaccesstoken = 'chusz3qyhkd5ravemieglglavuqkltcfmfan7lmcc77ajzmvhh5a';
       var personalaccesstokenbase64 = btoa(personalaccesstoken);
 
       var config = {headers:  {
