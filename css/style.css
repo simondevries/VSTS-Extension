@@ -1,22 +1,5 @@
 body {
-    width: 320px;
-}
-
-.todo-item .btn-remove-todo {
-    display:none;
-}
-
-.todo-item:hover .btn-remove-todo {
-    display: block;
-}
-
-.todo-item .todo-content {
-    font-weight: bold;
-}
-.todo-item.completed .todo-content {
-    color:darkgray;
-    font-weight: normal;
-    text-decoration: line-through;
+    width: 500px;
 }
 
 #todo-list {
@@ -25,4 +8,17 @@ body {
 
 #btn-remove-all {
     margin-bottom: 10px;
+}
+.spinner {
+  margin: 0 50%;
+}
+
+.section-title {
+  font-size: 20px !important;
+  font-weight: bold;
+}
+
+.checkbox-backlog{
+  margin-top: 7px  !important;
+  margin-left: 7px  !important;
 }

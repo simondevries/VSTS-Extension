@@ -1,27 +1,75 @@
 <!DOCTYPE html>
 <html ng-app='app'>
 <head>
-    <title>Angular Todo Chrome Extension</title>
-    <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+  <title>Angular Todo Chrome Extension</title>
+  <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/angular-material.min.css">
 </head>
 <body ng-controller='todoCtrl'>
-    <div class='container'>
+  <div>
+    <div ng-if="!showSettings">
 
-        <div class='row' id="todo-list">
-            <div class='todo-item col-md-12' ng-repeat='todo in todoList'>
-                <!-- <input type='checkbox' ng-model='todo.completed' ng-click='toggleCompleted()'/> -->
-                <span class='todo-content'>{{todo.title}}</span>
-                <!-- <a class='btn-remove-todo pull-right' ng-click='remove(todo)'><i class='glyphicon glyphicon-remove'></i> </a> -->
-            </div>
+      <md-tabs class="md-primary">
+        <md-tab label="{{dateMinusZero}}" ng-click="changeDate('0')"></md-tab>
+        <md-tab label="{{dateMinusOne}}" ng-click="changeDate('1')"></md-tab>
+        <md-tab label="{{dateMinusTwo}}" ng-click="changeDate('2')"></md-tab>
+        <md-tab label="{{dateMinusThree}}" ng-click="changeDate('3')"></md-tab>
+        <md-tab label="{{dateMinusFour}}" ng-click="changeDate('4')"></md-tab>
+        <md-tab label="{{dateMinusFive}}" ng-click="changeDate('5')"></md-tab>
+        <md-tab label="{{dateMinusSix}}" ng-click="changeDate('6')"></md-tab>
+      </md-tabs>
+      <md-list ng-cloak"md-primary">
+        <md-subheader class="md-no-sticky  md-accent section-title">Pull Request</md-subheader>
+        <md-progress-circular class="spinner" ng-if="isLoadingPR" md-mode="indeterminate"></md-progress-circular>
+        <span ng-if="webRequestPullRequestFailed">Failed to retrieve</span>
+        <md-list-item class="secondary-button-padding" ng-if="!isLoadingPR" ng-repeat='todo in pullRequests'>
+          <span>{{todo.description}}</span>
+          <md-button class="md-primary md-secondary">Copy</md-button>
+          <md-divider></md-divider>
+        </md-list-item>
+        <md-subheader class="md-no-sticky md-accent section-title">Backlog Items</md-subheader>
+        <div>
+          <md-progress-circular class="spinner" ng-if="isLoadingBacklog" md-mode="indeterminate"></md-progress-circular>
+          <span ng-if="webRequestPullRequestFailed">Failed to retrieve</span>
         </div>
+        <md-list-item class="secondary-button-padding" ng-if="!isLoadingBacklog" ng-repeat='todo in backlogItems'>
+          <span class='todo-content'>{{todo.title}}</span>
+          <md-button class="md-accent md-secondary" ngclipboard data-clipboard-text="{{todo.title}}">Copy</md-button>
+          <md-divider></md-divider>
+        </md-list-item>
+        <md-checkbox ng-model="onlyShowForStatusChanges" class="checkbox-backlog" ng-change="refreshPage()" aria-label="Only show backlog items which had a status change">
+          Only work items with status changes
+        </md-checkbox>
+      </md-list>
+
+
 
     </div>
-    <script type="text/javascript" src="lib/jquery/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="lib/angular/angular.js"></script>
-    <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="app/app.js"></script>
-    <script type="text/javascript" src="app/todoCtrl.js"></script>
-    <script type="text/javascript" src="app/vsoRepository.js"></script>
+
+
+    <div ng-if="showSettings">
+      <md-input-container class="md-block" flex-gt-sm>
+        <label>VSO Personal Access Token</label>
+        <input ng-model="personalAccessToken">
+      </md-input-container>
+    </div>
+
+    <div>
+      <md-button class="md-primary" ng-click="toggleSettingsVisibility()">{{settingsText}}</md-button>
+      <md-button class="md-primary" ng-click="refreshPage()">Refresh</md-button>
+    </div>
+  </div>
+  <script type="text/javascript" src="lib/jquery/jquery-2.1.3.min.js"></script>
+  <script type="text/javascript" src="lib/angular/angular.js"></script>
+  <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="lib/material/angular-animate.min.js"></script>
+  <script type="text/javascript" src="lib/material/angular-aria.min.js"></script>
+  <script type="text/javascript" src="lib/material/angular-material.min.js"></script>
+  <script type="text/javascript" src="lib/Clipboard/clipboard.min.js"></script>
+  <script type="text/javascript" src="lib/Clipboard/ngclipboard.min.js"></script>
+  <script type="text/javascript" src="app/app.js"></script>
+  <script type="text/javascript" src="app/todoCtrl.js"></script>
+  <script type="text/javascript" src="app/vsoRepository.js"></script>
 </body>
 </html>

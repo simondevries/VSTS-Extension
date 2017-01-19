@@ -8,19 +8,10 @@
   "default_popup": "index.html",
   "default_icon" : "images/logo.png"
   },
-  "background": {
-    "scripts": ["background.js"]
-  },
   "permissions": [
     "debugger",
     "storage",
-    "https://*/",
-    "webNavigation",
-    "tabs"
+    "https://*/"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'",
-  "content_scripts": [{
-   "js": [ "lib/jquery/jquery-2.1.3.min.js", "source.js"],
-   "matches": ["https://intergen.tenrox.net/*"]
- }]
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'"
 }
