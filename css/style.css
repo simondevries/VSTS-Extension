@@ -6,6 +6,10 @@ body {
     margin-bottom: 10px;
 }
 
+.no-padding {
+  padding: 0px;
+}
+
 #btn-remove-all {
     margin-bottom: 10px;
 }
@@ -20,5 +24,33 @@ body {
 
 .checkbox-backlog{
   margin-top: 7px  !important;
-  margin-left: 7px  !important;
+  margin-left: 16px  !important;
+}
+
+
+.pr-title{
+  font-weight: bold;
+}
+
+
+
+
+.item-type{
+  padding-left: 6px;
+  padding-right: 6px;
+  width: 63px;
+  margin-right: 10px;
+}
+
+.feature{
+background-color: lightblue;
+
+}
+
+.epic{
+  background-color: mediumorchid;
+}
+
+.task{
+background-color: gold;
 }

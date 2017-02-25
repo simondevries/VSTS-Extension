@@ -6,35 +6,67 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
   .accentPalette('blue');
 })
 .controller('todoCtrl', function ($scope, vsoRepository) {
-
-
-
-
-  var d = new Date();
-  $scope.dateMinusSix = d.getDate() - 6;
-  $scope.dateMinusFive = d.getDate() - 5;
-  $scope.dateMinusFour = d.getDate() - 4;
-  $scope.dateMinusThree = d.getDate() - 3;
-  $scope.dateMinusTwo = d.getDate() - 2;
-  $scope.dateMinusOne = d.getDate() - 1;
-  $scope.dateMinusZero = d.getDate();
   var selectedDate = new Date();
   $scope.isLoadingBacklog = true;
   $scope.isLoadingPR = true;
-  $scope.onlyShowForStatusChanges = true;
   $scope.webRequestPullRequestFailed = false;
   $scope.webRequestBacklogFailed = false;
   $scope.showSettings = false;
   $scope.settingsText = "Show Settings";
-  $scope.personalAccessToken = "chusz3qyhkd5ravemieglglavuqkltcfmfan7lmcc77ajzmvhh5a";
+  $scope.obg = {};
+  $scope.obg.onlyShowForStatusChanges = true;
+  $scope.obg.personalAccessToken = '';
+  $scope.obg.selectedAccount = '';
+  $scope.obg.selectedProject = '';
+  $scope.accounts = [];
+  $scope.projects = [];
+
 
   $scope.vsoRepository = vsoRepository;
 
+
   $scope.pullRequests = [];
   $scope.webRequestPullRequestFailed = false;
+
+
+    chrome.storage.local.get(["obg"], function(data){
+      $scope.obg = data.obg;
+    });
+
+
+
   var getPullRequests = function(){
     $scope.isLoadingPR = true;
-    $scope.vsoRepository.getPullRequests($scope.personalaccesstoken).then(function(data){
+    chrome.storage.local.get(["prItemsAge"], function(data){
+      chrome.storage.local.set({ "prItemsAge": data.prItemsAge }, function(){
+        chrome.storage.local.get(["prItemsAge"], function(data){
+
+          if(data === undefined || data === null || data.prItemsAge === undefined || data.prItemsAge === null){
+            $scope.downloadPullRequests();
+            return;
+          }
+
+          var age = new Date(data.prItemsAge);
+          var oneHoursAge = new Date();
+          oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
+          if(age > oneHoursAge){
+            chrome.storage.local.get(["prItems"], function(items){
+              if(items != {} && items != undefined && items != null){
+                $scope.pullRequests = items.prItems;
+                $scope.isLoadingPR = false;
+              }
+            });
+          }else{
+            $scope.downloadPullRequests();
+          }
+        });
+      });
+    });
+  }
+
+  $scope.downloadPullRequests = function(){
+    $scope.isLoadingPR = true;
+    $scope.vsoRepository.getPullRequests($scope.obg.personalaccesstoken, $scope.obg.selectedAccount, $scope.obg.selectedProject).then(function(data){
       if(data === [] || data === undefined || data === null){
         $scope.webRequestPullRequestFailed = true;
       }
@@ -44,53 +76,45 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
         if(selectedDate.getFullYear() === pullRequestDate.getFullYear() &&
         selectedDate.getMonth() === pullRequestDate.getMonth() &&
         selectedDate.getDate() === pullRequestDate.getDate()) {
+          data[i].selected = false;
           pullRequestsOnDate.push(data[i]);
         }
       }
+      chrome.storage.local.set({ "prItems": pullRequestsOnDate }, function(){});
+      var age = new Date().toString();
+      chrome.storage.local.set({ "prItemsAge": age }, function(){  });
       $scope.pullRequests = pullRequestsOnDate;
     }).finally(function(){
       $scope.isLoadingPR = false;
     });
   }
 
+  $scope.retrieveBacklogItems = function() {
+    $scope.isLoadingBacklog = true;
+    chrome.storage.local.get(["backlogItemsAge"], function(data){
+      chrome.storage.local.set({ "backlogItemsAge": data.backlogItemsAge }, function(){
+        chrome.storage.local.get(["backlogItemsAge"], function(data){
 
-  var retrieveBacklogItems = function() {
+          if(data === undefined || data === null || data.backlogItemsAge === undefined || data.backlogItemsAge === null){
+            $scope.downloadBacklogItems();
+            return;
+          }
 
-    chrome.storage.local.set({ "backlogItemsAge": '2017/01/01' }, function(){ });
-
-      chrome.storage.local.get(["backlogItemsAge"], function(data){
-
-      // if(data === undefined || data === null){
-      //   $scope.downloadBacklogItems();
-      //   return;
-      //
-      // }
-
-      alert(''+JSON.stringify(data));
-      var age = new Date(data.backlogItemsAge);
-
-      if(isNaN( age.getTime() )){
-          alert('downloading cuz of invalid date');
-          $scope.downloadBacklogItems();
-          return;
-      }
-
-      var oneHourAgo = new Date();
-       oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-      alert(age +'<' + oneHourAgo.toString());
-      if(age > oneHourAgo){
-        alert('Fetch from storage');
-        chrome.storage.local.get(/* String or Array */["backlogItems"], function(items){
-          if(items != {} && items != undefined && items != null){
-            $scope.backlogItems = items.backlogItems;
-            $scope.isLoadingBacklog= false;
-            alert('Fetched from storage');
+          var age = new Date(data.backlogItemsAge);
+          var oneHoursAge = new Date();
+          oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
+          if(age > oneHoursAge){
+            chrome.storage.local.get(/* String or Array */["backlogItems"], function(items){
+              if(items != {} && items != undefined && items != null){
+                $scope.backlogItems = items.backlogItems;
+                $scope.isLoadingBacklog= false;
+              }
+            });
+          }else{
+            $scope.downloadBacklogItems();
           }
         });
-      }else{
-        alert('downloading');
-        $scope.downloadBacklogItems();
-      }
+      });
     });
   }
 
@@ -100,40 +124,42 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
     $scope.backlogItems = [];
     $scope.isLoadingBacklog = true;
     $scope.webRequestBacklogFailed = false;
-      alert('2');
-    $scope.vsoRepository.getBacklogChanges(daysAgo, $scope.onlyShowForStatusChanges, $scope.personalAccessToken).then(function(data) {
-      alert('3');
+    $scope.vsoRepository.getBacklogChanges(daysAgo, $scope.obg.onlyShowForStatusChanges, $scope.obg.personalAccessToken, $scope.obg.selectedAccount, $scope.obg.selectedProject).then(function(data) {
+
       if(data === [] || data === undefined || data === null){
         $scope.webRequestBacklogFailed = true;
       }
-        alert('4');
       $scope.backlogItems = data;
-    //  var dateNow = new Date().toString();
-    //  chrome.storage.local.set({ "backlogItemsAge": dateNow }, function(){ });
+      var age = new Date().toString();
+      chrome.storage.local.set({ "backlogItemsAge": age }, function(){   });
+      chrome.storage.local.set({ "backlogItems": data }, function(){});
 
     }).finally(function(){
-      alert('fails');
       $scope.isLoadingBacklog= false;
     });
   }
 
   $scope.refreshPage = function(){
-
-
-    getPullRequests();
-    retrieveBacklogItems();
+    $scope.downloadPullRequests();
+    $scope.downloadBacklogItems();
   }
 
   $scope.changeDate = function(day){
     var d = new Date();
     selectedDate = new Date(d.setDate(d.getDate() - day));
-    getPullRequests();
-    retrieveBacklogItems();
+    $scope.refreshPage();
   }
 
 
   $scope.toggleSettingsVisibility = function(){
     if(!$scope.showSettings){
+      $scope.vsoRepository.getAccounts($scope.obg.personalAccessToken).then( function(results){
+        $scope.accounts = results;
+
+          $scope.vsoRepository.getProjects($scope.obg.personalAccessToken, $scope.obg.selectedAccount).then(function(results){
+              $scope.projects = results;
+          });
+      });
       $scope.settingsText = "Show Dashboard";
       $scope.showSettings = true;
     }else{
@@ -142,10 +168,84 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
     }
   }
 
+  $scope.isFeature = function(type){
+    if(type === 'Feature' || type === 'User Story'){
+      return true;
+    }
+    return false;
+  }
+
+  $scope.isEpic = function(type){
+    if(type === 'Epic'){
+      return true;
+    }
+    return false;
+  }
+
+  $scope.isTask = function(type){
+    if(type === 'Task'){
+      return true;
+    }
+    return false;
+  }
+// Repeat for projectSelected
+  $scope.accountSelected = function() {
+    $scope.vsoRepository.getProjects($scope.obg.personalAccessToken, $scope.obg.selectedAccount).then(function(results){
+      $scope.projects = results;
+      $scope.saveObg();
+    });
+  }
 
 
+  $scope.shouldShowPullRequests = function(){
+      return ($scope.pullRequests && $scope.pullRequests.length) !== 0 || $scope.isLoadingPR;
+  }
 
+
+    $scope.shouldShowBacklog = function(){
+        return ($scope.backlogItems && $scope.backlogItems.length) !== 0 || $scope.isLoadingBacklog;
+    }
+
+    $scope.saveObg = function() {
+      chrome.storage.local.get(["obg"], function(data){
+        chrome.storage.local.set({ "obg": data.obg }, function(){
+          chrome.storage.local.get(["obg"], function(data){
+            chrome.storage.local.set({ "obg": $scope.obg }, function(){});
+          });
+        });
+      });
+    }
+
+    $scope.dayOfWeekConvertor = function(day){
+        switch (day){
+          case 0:
+        return "Sunday"
+          case 1:
+        return "Monday"
+          case 2:
+        return "Tuesday"
+          case 3:
+        return "Wednesday"
+          case 4:
+        return "Thursday"
+          case 5:
+        return "Friday"
+          case 6:
+        return "Saturday"
+        }
+        return "";
+    }
+
+      var six = new Date();
+      six.setDate(six.getDate() -7 )
+      $scope.dateMinusSix = $scope.dayOfWeekConvertor(six.getDay());
+      $scope.dateMinusFive = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 5).getDay());
+      $scope.dateMinusFour = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 4).getDay());
+      $scope.dateMinusThree = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 3).getDay());
+      $scope.dateMinusTwo = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 2).getDay());
+      $scope.dateMinusOne =$scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 1).getDay());
+      $scope.dateMinusZero = $scope.dayOfWeekConvertor(new Date().getDay());
 
   getPullRequests();
-  retrieveBacklogItems();
+  $scope.retrieveBacklogItems();
 });

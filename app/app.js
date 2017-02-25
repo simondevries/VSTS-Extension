@@ -1,3 +1,7 @@
 'use strict';
 
-angular.module("app", []);
+angular.module("app", [])
+.config(function($mdThemingProvider) {
+  $mdThemingProvider.theme('default')
+    .dark();
+});
