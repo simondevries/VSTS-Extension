@@ -64,8 +64,17 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
     });
   }
 
+  $scope.empty = function(input){
+    return input === undefined || input === null;
+  }
+
   $scope.downloadPullRequests = function(){
     $scope.isLoadingPR = true;
+
+  if($scope.empty($scope.obg) || $scope.empty($scope.obg.personalaccesstoken) || $scope.empty($scope.obg.selectedAccount) || $scope.empty($scope.obg.selectedProject)){
+    return;
+  }
+
     $scope.vsoRepository.getPullRequests($scope.obg.personalaccesstoken, $scope.obg.selectedAccount, $scope.obg.selectedProject).then(function(data){
       if(data === [] || data === undefined || data === null){
         $scope.webRequestPullRequestFailed = true;
@@ -95,10 +104,10 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
       chrome.storage.local.set({ "backlogItemsAge": data.backlogItemsAge }, function(){
         chrome.storage.local.get(["backlogItemsAge"], function(data){
 
-          if(data === undefined || data === null || data.backlogItemsAge === undefined || data.backlogItemsAge === null){
-            $scope.downloadBacklogItems();
-            return;
-          }
+              if(data === undefined || data === null || data.backlogItemsAge === undefined || data.backlogItemsAge === null){
+                $scope.downloadBacklogItems();
+                return;
+              }
 
           var age = new Date(data.backlogItemsAge);
           var oneHoursAge = new Date();
@@ -119,6 +128,11 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
   }
 
   $scope.downloadBacklogItems = function(){
+    if($scope.empty($scope.obg) || $scope.empty($scope.obg.onlyShowForStatusChanges) || $scope.empty($scope.obg.personalAccessToken) || $scope.empty($scope.obg.selectedAccount) || $scope.empty($scope.obg.selectedProject)){
+      return;
+    }
+
+
     var now = new Date(); //"now"
     var daysAgo = Math.floor((now-selectedDate)/(1000*60*60*24));
     $scope.backlogItems = [];
@@ -152,6 +166,13 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
 
 
   $scope.toggleSettingsVisibility = function(){
+if($scope.empty($scope.obg) || $scope.empty($scope.obg.personalAccessToken)){
+
+  $scope.settingsText = "Show Dashboard";
+  $scope.showSettings = true;
+return;
+}
+
     if(!$scope.showSettings){
       $scope.vsoRepository.getAccounts($scope.obg.personalAccessToken).then( function(results){
         $scope.accounts = results;
@@ -216,35 +237,23 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function($mdThemingP
       });
     }
 
-    $scope.dayOfWeekConvertor = function(day){
-        switch (day){
-          case 0:
-        return "Sunday"
-          case 1:
-        return "Monday"
-          case 2:
-        return "Tuesday"
-          case 3:
-        return "Wednesday"
-          case 4:
-        return "Thursday"
-          case 5:
-        return "Friday"
-          case 6:
-        return "Saturday"
-        }
-        return "";
-    }
 
-      var six = new Date();
-      six.setDate(six.getDate() -7 )
-      $scope.dateMinusSix = $scope.dayOfWeekConvertor(six.getDay());
-      $scope.dateMinusFive = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 5).getDay());
-      $scope.dateMinusFour = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 4).getDay());
-      $scope.dateMinusThree = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 3).getDay());
-      $scope.dateMinusTwo = $scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 2).getDay());
-      $scope.dateMinusOne =$scope.dayOfWeekConvertor(new Date().setDate(new Date().getDate() - 1).getDay());
-      $scope.dateMinusZero = $scope.dayOfWeekConvertor(new Date().getDay());
+          $scope.getDatePrint = function(number) {
+              var date = new Date();
+              date.setDate(new Date().getDate() - number);
+              return date.getDate() + '/' + date.getMonth();
+          }
+
+  $scope.dateMinusSix = $scope.getDatePrint(6);
+  $scope.dateMinusFive = $scope.getDatePrint(5);
+  $scope.dateMinusFour = $scope.getDatePrint(4);
+  $scope.dateMinusThree = $scope.getDatePrint(3);
+  $scope.dateMinusTwo = $scope.getDatePrint(2);
+  $scope.dateMinusOne = $scope.getDatePrint(1);
+  $scope.dateMinusZero = $scope.getDatePrint(0);
+
+
+
 
   getPullRequests();
   $scope.retrieveBacklogItems();
