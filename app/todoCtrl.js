@@ -40,7 +40,9 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.dateMinusZero = $scope.getDatePrint(0);
 
     chrome.storage.local.get(["obg"], function (data) {
-        $scope.obg = data.obg;
+        if (data === {}) {
+            $scope.obg = data.obg;
+        }
     });
 
     var getPullRequests = function () {
@@ -223,7 +225,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     }
 
 
-    $scope.isTask = function (type) {
+    $scope.isBug = function (type) {
         if (type === 'Bug') {
             return true;
         }

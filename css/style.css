@@ -44,18 +44,21 @@ body {
 
 .feature{
 background-color: lightblue;
-
+    margin-left: 0px;
 }
 
 .epic{
   background-color: mediumorchid;
+    margin-left: 0px;
 }
 
 .task{
 background-color: gold;
+    margin-left: 15px;
 }
 
 
 .bug{
 background-color: Red;
+    margin-left: 15px;
 }

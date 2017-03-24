@@ -48,7 +48,7 @@
                         <div class='todo-content item-type feature' ng-show="isFeature(todo.workItemType)">Feature</div>
                         <div class='todo-content item-type epic' ng-show="isEpic(todo.workItemType)">Epic</div>
                         <div class='todo-content item-type task' ng-show="isTask(todo.workItemType)">Task</div>
-                        <div class='todo-content item-type bug' ng-show="isBug(todo.workItemType)">Task</div>
+                        <div class='todo-content item-type bug' ng-show="isBug(todo.workItemType)">Bug</div>
                         <span class='todo-content'>{{todo.title}}</span>
                         <md-button class="md-accent md-secondary" ngclipboard data-clipboard-text="{{todo.title}}">Copy</md-button>
                         <md-divider></md-divider>
