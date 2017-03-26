@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name"            : "ng-Todo",
-  "description"     : "Minimal todo app for minimalist",
-  "short_name"      : "ng-Todo",
+  "name"            : "VSTS Timesheet Assistant",
+  "description"     : "Assists with filling in your timesheets by instantly providing information on what cards you have changed and app pull requests made.",
+  "short_name"      : "VSTS Timesheet Assistant",
   "version"         : "0.1",
   "browser_action": {
   "default_popup": "index.html",
