@@ -40,7 +40,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.dateMinusZero = $scope.getDatePrint(0);
 
     chrome.storage.local.get(["obg"], function (data) {
-        if (data === {}) {
+        if (data !== {}) {
             $scope.obg = data.obg;
         }
     });
@@ -48,29 +48,25 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     var getPullRequests = function () {
         $scope.isLoadingPR = true;
         chrome.storage.local.get(["prItemsAge"], function (data) {
-            chrome.storage.local.set({ "prItemsAge": data.prItemsAge }, function () {
-                chrome.storage.local.get(["prItemsAge"], function (data) {
 
-                    if (data === undefined || data === null || data.prItemsAge === undefined || data.prItemsAge === null) {
-                        $scope.downloadPullRequests();
-                        return;
-                    }
+            if (data === undefined || data === null || data.prItemsAge === undefined || data.prItemsAge === null) {
+                $scope.downloadPullRequests();
+                return;
+            }
 
-                    var age = new Date(data.prItemsAge);
-                    var oneHoursAge = new Date();
-                    oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
-                    if (age > oneHoursAge) {
-                        chrome.storage.local.get(["prItems"], function (items) {
-                            if (items !== {} && items !== undefined && items !== null) {
-                                $scope.pullRequests = items.prItems;
-                                $scope.isLoadingPR = false;
-                            }
-                        });
-                    } else {
-                        $scope.downloadPullRequests();
+            var age = new Date(data.prItemsAge);
+            var oneHoursAge = new Date();
+            oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
+            if (age > oneHoursAge) {
+                chrome.storage.local.get(["prItems"], function (items) {
+                    if (items !== {} && items !== undefined && items !== null) {
+                        $scope.pullRequests = items.prItems;
+                        $scope.isLoadingPR = false;
                     }
                 });
-            });
+            } else {
+                $scope.downloadPullRequests();
+            }
         });
     }
 
@@ -112,30 +108,26 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.retrieveBacklogItems = function () {
         $scope.isLoadingBacklog = true;
         chrome.storage.local.get(["backlogItemsAge"], function (data) {
-            chrome.storage.local.set({ "backlogItemsAge": data.backlogItemsAge }, function () {
-                chrome.storage.local.get(["backlogItemsAge"], function (data) {
 
-                    if (data === undefined || data === null || data.backlogItemsAge === undefined || data.backlogItemsAge === null) {
-                        $scope.downloadBacklogItems();
+            if (data === undefined || data === null || data.backlogItemsAge === undefined || data.backlogItemsAge === null) {
+                $scope.downloadBacklogItems();
+                $scope.isLoadingBacklog = false;
+                return;
+            }
+
+            var age = new Date(data.backlogItemsAge);
+            var oneHoursAge = new Date();
+            oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
+            if (age > oneHoursAge) {
+                chrome.storage.local.get(/* String or Array */["backlogItems"], function (items) {
+                    if (items !== {} && items !== undefined && items !== null) {
+                        $scope.backlogItems = items.backlogItems;
                         $scope.isLoadingBacklog = false;
-                        return;
-                    }
-
-                    var age = new Date(data.backlogItemsAge);
-                    var oneHoursAge = new Date();
-                    oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
-                    if (age > oneHoursAge) {
-                        chrome.storage.local.get(/* String or Array */["backlogItems"], function (items) {
-                            if (items !== {} && items !== undefined && items !== null) {
-                                $scope.backlogItems = items.backlogItems;
-                                $scope.isLoadingBacklog = false;
-                            }
-                        });
-                    } else {
-                        $scope.downloadBacklogItems();
                     }
                 });
-            });
+            } else {
+                $scope.downloadBacklogItems();
+            }
         });
     }
 
@@ -224,14 +216,12 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
         return false;
     }
 
-
     $scope.isBug = function (type) {
         if (type === 'Bug') {
             return true;
         }
         return false;
     }
-
 
     // Repeat for projectSelected
     $scope.accountSelected = function () {
@@ -240,7 +230,6 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
             $scope.saveObg();
         });
     }
-
 
     $scope.shouldShowPullRequests = function () {
         return ($scope.pullRequests && $scope.pullRequests.length) !== 0 || $scope.isLoadingPR;
@@ -252,9 +241,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     }
 
     $scope.saveObg = function () {
-
         chrome.storage.local.set({ "obg": $scope.obg }, function () { });
-
     }
 
     $scope.navigateToSettingsIfNew = function () {
@@ -263,6 +250,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
         }
     }
 
+    $scope.navigateToSettingsIfNew();
     getPullRequests();
     $scope.retrieveBacklogItems();
 

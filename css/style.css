@@ -2,63 +2,63 @@ body {
     width: 500px;
 }
 
-#todo-list {
-    margin-bottom: 10px;
-}
-
 .no-padding {
-  padding: 0px;
+    padding: 0px;
 }
 
 #btn-remove-all {
     margin-bottom: 10px;
 }
+
 .spinner {
-  margin: 0 50%;
+    margin: 0 50%;
 }
 
 .section-title {
-  font-size: 20px !important;
-  font-weight: bold;
+    font-size: 20px !important;
+    font-weight: bold;
 }
 
-.checkbox-backlog{
-  margin-top: 7px  !important;
-  margin-left: 16px  !important;
+.list-item {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+.checkbox-backlog {
+    margin-top: 7px !important;
+    margin-left: 16px !important;
+}
+
+.container {
+    padding: 20px;
+}
+
+.pr-title {
+    font-weight: bold;
+}
+
+.item-type {
+    padding-left: 6px;
+    padding-right: 6px;
+    width: 63px;
+    margin-right: 10px;
+    min-width: 63px;
+    text-align: center;
+}
+
+.feature {
+    background-color: lightblue;
+}
+
+.epic {
+    background-color: mediumorchid;
+}
+
+.task {
+    background-color: gold;
 }
 
 
-.pr-title{
-  font-weight: bold;
-}
-
-
-
-
-.item-type{
-  padding-left: 6px;
-  padding-right: 6px;
-  width: 63px;
-  margin-right: 10px;
-}
-
-.feature{
-background-color: lightblue;
-    margin-left: 0px;
-}
-
-.epic{
-  background-color: mediumorchid;
-    margin-left: 0px;
-}
-
-.task{
-background-color: gold;
-    margin-left: 15px;
-}
-
-
-.bug{
-background-color: Red;
-    margin-left: 15px;
+.bug {
+    background-color: Red;
 }

@@ -44,12 +44,12 @@
                         <md-progress-circular class="spinner" ng-if="isLoadingBacklog" md-mode="indeterminate"></md-progress-circular>
                         <span ng-if="webRequestPullRequestFailed">Failed to retrieve</span>
                     </div>
-                    <md-list-item class="secondary-button-padding" ng-if="!isLoadingBacklog" ng-repeat='todo in backlogItems'>
+                    <md-list-item class="list-item" ng-if="!isLoadingBacklog" ng-repeat='todo in backlogItems'>
                         <div class='todo-content item-type feature' ng-show="isFeature(todo.workItemType)">Feature</div>
                         <div class='todo-content item-type epic' ng-show="isEpic(todo.workItemType)">Epic</div>
                         <div class='todo-content item-type task' ng-show="isTask(todo.workItemType)">Task</div>
                         <div class='todo-content item-type bug' ng-show="isBug(todo.workItemType)">Bug</div>
-                        <span class='todo-content'>{{todo.title}}</span>
+                        <span>{{todo.title}}</span>
                         <md-button class="md-accent md-secondary" ngclipboard data-clipboard-text="{{todo.title}}">Copy</md-button>
                         <md-divider></md-divider>
                     </md-list-item>
@@ -63,7 +63,15 @@
         </div>
     </div>
 
-    <div ng-if="showSettings">
+<div ng-if="showSettings">
+    
+    <div class="container">
+        <h3>Settings</h3>
+        <md-input-container class="md-block" flex-gt-sm>
+            <label>VSO Personal Access Token</label>
+            <input ng-model="obg.personalAccessToken" type="password" ng-change="saveObg()">
+        </md-input-container>
+
         <md-input-container>
             <label>Account</label>
             <md-select ng-model="obg.selectedAccount" ng-change="accountSelected()">
@@ -81,16 +89,12 @@
                 </md-option>
             </md-select>
         </md-input-container>
-
-        <md-input-container class="md-block" flex-gt-sm>
-            <label>VSO Personal Access Token</label>
-            <input ng-model="obg.personalAccessToken" ng-change="saveObg()">
-        </md-input-container>
-
-
     </div>
 
-    <div>
+
+</div>
+
+    <div class="container">
         <md-button class="md-primary" ng-click="toggleSettingsVisibility()">{{settingsText}}</md-button>
         <md-button class="md-primary" ng-click="refreshPage()">Refresh</md-button>
     </div>
