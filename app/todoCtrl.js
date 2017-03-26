@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdThemingProvider) {
     $mdThemingProvider.theme('default')
@@ -6,9 +6,14 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     .accentPalette('blue');
 })
 .controller('todoCtrl', function ($scope, vsoRepository) {
+
     var selectedDate = new Date();
+    $scope.temporaryToken = {};
+    $scope.temporaryToken.value = '';
     $scope.isLoadingBacklog = true;
+    $scope.showReEnterTokenButton = true;
     $scope.isLoadingPR = true;
+    $scope.tokenSet = false;
     $scope.webRequestPullRequestFailed = false;
     $scope.webRequestBacklogFailed = false;
     $scope.showSettings = false;
@@ -24,6 +29,30 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.pullRequests = [];
     $scope.webRequestPullRequestFailed = false;
 
+    $scope.encrypt = function (input) {
+//        if (input === undefined || input === '') {
+//            return '';
+//        }
+//
+//        var key = '@32@Njak#42j"[2s';
+//        var iv = '@32@Njak#42j"[2s';
+//
+//        // encrypt some bytes using CBC mode
+//        // (other modes include: ECB, CFB, OFB, CTR, and GCM)
+//        // Note: CBC and ECB modes use PKCS#7 padding as default
+//        var cipher = forge.cipher.createCipher('AES-CBC', key);
+//        cipher.start({ iv: iv });
+//        cipher.update(forge.util.createBuffer(input));
+//        cipher.finish();
+//        var encrypted = cipher.output;
+//        // outputs encrypted hex
+        //        return encrypted;
+        return input;
+    }
+
+    $scope.toggleShowReEnterTokenButton = function () {
+        $scope.showReEnterTokenButton = false;
+    }
 
     $scope.getDatePrint = function (number) {
         var date = new Date();
@@ -136,7 +165,6 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
             return;
         }
 
-
         var now = new Date(); //"now"
         var daysAgo = Math.floor((now - selectedDate) / (1000 * 60 * 60 * 24));
         $scope.backlogItems = [];
@@ -168,7 +196,6 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
         $scope.refreshPage();
     }
 
-
     $scope.toggleSettingsVisibility = function () {
         if ($scope.empty($scope.obg) || $scope.empty($scope.obg.personalAccessToken)) {
 
@@ -177,16 +204,17 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
             return;
         }
 
-        if (!$scope.showSettings) {
-            $scope.vsoRepository.getAccounts($scope.obg.personalAccessToken)
-                .then(function (results) {
-                    $scope.accounts = results;
+        $scope.tokenSet = false;
 
-                    $scope.vsoRepository.getProjects($scope.obg.personalAccessToken, $scope.obg.selectedAccount)
-                        .then(function (results) {
-                            $scope.projects = results;
-                        });
-                });
+        if (!$scope.showSettings) {
+            $scope.vsoRepository.getAccounts($scope.obg.personalAccessToken).then(function (results) {
+                $scope.accounts = results;
+
+                $scope.vsoRepository.getProjects($scope.obg.personalAccessToken, $scope.obg.selectedAccount)
+                    .then(function (results) {
+                        $scope.projects = results;
+                    });
+            });
             $scope.settingsText = "Show Dashboard";
             $scope.showSettings = true;
         } else {
@@ -227,7 +255,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.accountSelected = function () {
         $scope.vsoRepository.getProjects($scope.obg.personalAccessToken, $scope.obg.selectedAccount).then(function (results) {
             $scope.projects = results;
-            $scope.saveObg();
+            $scope.saveObj();
         });
     }
 
@@ -235,23 +263,46 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
         return ($scope.pullRequests && $scope.pullRequests.length) !== 0 || $scope.isLoadingPR;
     }
 
-
     $scope.shouldShowBacklog = function () {
         return ($scope.backlogItems && $scope.backlogItems.length) !== 0 || $scope.isLoadingBacklog;
     }
 
-    $scope.saveObg = function () {
+    $scope.saveObj = function () {
         chrome.storage.local.set({ "obg": $scope.obg }, function () { });
     }
 
     $scope.navigateToSettingsIfNew = function () {
         if ($scope.obg.personalaccesstoken === undefined || $scope.obg.personalAccessToken === null) {
             $scope.toggleSettingsVisibility();
+            $scope.showReEnterTokenButton = false;
         }
+    }
+
+    $scope.clearTempToken = function () {
+        $scope.temporaryToken.value = '';
+        $scope.tokenSet = true;
+        $scope.showReEnterTokenButton = true;
+    }
+
+    $scope.setPersonalAccessToken = function () {
+//        var encrypted = $scope.encrypt($scope.temporaryToken.value);
+        $scope.obg.personalAccessToken = $scope.temporaryToken.value;
+        $scope.saveObj();
+    }
+
+    String.prototype.getBytes = function () {
+        var bytes = [];
+        for (var i = 0; i < this.length; i++) {
+            var charCode = this.charCodeAt(i);
+            var cLen = Math.ceil(Math.log(charCode) / Math.log(256));
+            for (var j = 0; j < cLen; j++) {
+                bytes.push((charCode << (j * 8)) & 0xFF);
+            }
+        }
+        return bytes;
     }
 
     $scope.navigateToSettingsIfNew();
     getPullRequests();
     $scope.retrieveBacklogItems();
-
 });
