@@ -10,8 +10,17 @@ body {
     margin-bottom: 10px;
 }
 
+.pat-image {
+    width: 100%
+}
+
 .spinner {
     margin: 0 50%;
+}
+
+.no-left-margin {
+    margin-left: 0px;
+    margin-right: 5px;
 }
 
 .section-title {
@@ -31,6 +40,10 @@ body {
 
 .container {
     padding: 20px;
+}
+
+.button-container {
+    float: right
 }
 
 .red {

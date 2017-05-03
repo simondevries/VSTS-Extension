@@ -1,17 +1,17 @@
 ﻿'use strict';
 
-angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdThemingProvider) {
+angular.module('app', ['ngMaterial', 'ngclipboard', 'angularMoment']).config(function ($mdThemingProvider) {
     $mdThemingProvider.theme('default')
     .primaryPalette('blue-grey')
     .accentPalette('blue');
 })
-.controller('todoCtrl', function ($scope, vsoRepository) {
+.controller('homeCtrl', function ($scope, vsoRepository) {
 
     var selectedDate = new Date();
     $scope.temporaryToken = {};
     $scope.temporaryToken.value = '';
     $scope.isLoadingBacklog = true;
-    $scope.showReEnterTokenButton = true;
+    $scope.showReEnterTokenButton = false;
     $scope.isLoadingPR = true;
     $scope.tokenSet = false;
     $scope.webRequestPullRequestFailed = false;
@@ -28,27 +28,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.vsoRepository = vsoRepository;
     $scope.pullRequests = [];
     $scope.webRequestPullRequestFailed = false;
-
-    $scope.encrypt = function (input) {
-//        if (input === undefined || input === '') {
-//            return '';
-//        }
-//
-//        var key = '@32@Njak#42j"[2s';
-//        var iv = '@32@Njak#42j"[2s';
-//
-//        // encrypt some bytes using CBC mode
-//        // (other modes include: ECB, CFB, OFB, CTR, and GCM)
-//        // Note: CBC and ECB modes use PKCS#7 padding as default
-//        var cipher = forge.cipher.createCipher('AES-CBC', key);
-//        cipher.start({ iv: iv });
-//        cipher.update(forge.util.createBuffer(input));
-//        cipher.finish();
-//        var encrypted = cipher.output;
-//        // outputs encrypted hex
-        //        return encrypted;
-        return input;
-    }
+    $scope.selectedTab = 0;
 
     $scope.toggleShowReEnterTokenButton = function () {
         $scope.showReEnterTokenButton = false;
@@ -57,7 +37,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.getDatePrint = function (number) {
         var date = new Date();
         date.setDate(new Date().getDate() - number);
-        return date.getDate() + '/' + date.getMonth();
+        return moment(date).format('ddd');
     }
 
     $scope.dateMinusSix = $scope.getDatePrint(6);
@@ -67,12 +47,6 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     $scope.dateMinusTwo = $scope.getDatePrint(2);
     $scope.dateMinusOne = $scope.getDatePrint(1);
     $scope.dateMinusZero = $scope.getDatePrint(0);
-
-    chrome.storage.local.get(["obg"], function (data) {
-        if (data !== {}) {
-            $scope.obg = data.obg;
-        }
-    });
 
     var getPullRequests = function () {
         $scope.isLoadingPR = true;
@@ -87,10 +61,12 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
             var oneHoursAge = new Date();
             oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
             if (age > oneHoursAge) {
-                chrome.storage.local.get(["prItems"], function (items) {
-                    if (items !== {} && items !== undefined && items !== null) {
-                        $scope.pullRequests = items.prItems;
+                chrome.storage.local.get(["pullRequestItems"], function (items) {
+                    if (!_.isEmpty(items) && !_.isEmpty(items.pullRequestItems)) {
+                        $scope.pullRequests = items.pullRequestItems;
                         $scope.isLoadingPR = false;
+
+
                     }
                 });
             } else {
@@ -125,9 +101,10 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
                     pullRequestsOnDate.push(data[i]);
                 }
             }
-            chrome.storage.local.set({ "prItems": pullRequestsOnDate }, function () { });
+            chrome.storage.local.set({ "pullRequestItems": pullRequestsOnDate }, function () { });
             var age = new Date().toString();
             chrome.storage.local.set({ "prItemsAge": age }, function () { });
+            chrome.storage.local.set({ "selectedTab": $scope.selectedTab }, function () { });
             $scope.pullRequests = pullRequestsOnDate;
         }).finally(function () {
             $scope.isLoadingPR = false;
@@ -148,10 +125,14 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
             var oneHoursAge = new Date();
             oneHoursAge = oneHoursAge.setHours(oneHoursAge.getHours() - 1);
             if (age > oneHoursAge) {
-                chrome.storage.local.get(/* String or Array */["backlogItems"], function (items) {
+                chrome.storage.local.get(["backlogItems"], function (items) {
                     if (items !== {} && items !== undefined && items !== null) {
                         $scope.backlogItems = items.backlogItems;
                         $scope.isLoadingBacklog = false;
+
+                        chrome.storage.local.get(["selectedTab"], function (data) {
+                            $scope.selectedTab = data.selectedTab;
+                        });
                     }
                 });
             } else {
@@ -179,6 +160,7 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
             var age = new Date().toString();
             chrome.storage.local.set({ "backlogItemsAge": age }, function () { });
             chrome.storage.local.set({ "backlogItems": data }, function () { });
+            chrome.storage.local.set({ "selectedTab": $scope.selectedTab }, function () { });
 
         }).finally(function () {
             $scope.isLoadingBacklog = false;
@@ -191,6 +173,9 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
     }
 
     $scope.changeDate = function (day) {
+        $scope.selectedTab = day;
+        $scope.saveObj();
+
         var d = new Date();
         selectedDate = new Date(d.setDate(d.getDate() - day));
         $scope.refreshPage();
@@ -267,14 +252,9 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
         return ($scope.backlogItems && $scope.backlogItems.length) !== 0 || $scope.isLoadingBacklog;
     }
 
-    $scope.saveObj = function () {
-        chrome.storage.local.set({ "obg": $scope.obg }, function () { });
-    }
-
     $scope.navigateToSettingsIfNew = function () {
-        if ($scope.obg.personalaccesstoken === undefined || $scope.obg.personalAccessToken === null) {
+        if (_.isEmpty($scope.obg) || _.isEmpty($scope.obg.selectedAccount) || _.isEmpty($scope.obg.selectedProject)) {
             $scope.toggleSettingsVisibility();
-            $scope.showReEnterTokenButton = false;
         }
     }
 
@@ -284,25 +264,41 @@ angular.module('app', ['ngMaterial', 'ngclipboard']).config(function ($mdTheming
         $scope.showReEnterTokenButton = true;
     }
 
+    $scope.updateTokenVisibility = function () {
+        if (!_.isEmpty($scope.obg.personalAccessToken)) {
+            $scope.showReEnterTokenButton = true;
+        }
+    }
+
+    $scope.saveObj = function () {
+
+        var encryptedObg = angular.copy($scope.obg);
+
+        encryptedObg.personalAccessToken = sjcl.encrypt("password", $scope.obg.personalAccessToken);
+
+        chrome.storage.local.set({ "userInformation": encryptedObg }, function () { });
+    }
+
     $scope.setPersonalAccessToken = function () {
-//        var encrypted = $scope.encrypt($scope.temporaryToken.value);
         $scope.obg.personalAccessToken = $scope.temporaryToken.value;
         $scope.saveObj();
     }
 
-    String.prototype.getBytes = function () {
-        var bytes = [];
-        for (var i = 0; i < this.length; i++) {
-            var charCode = this.charCodeAt(i);
-            var cLen = Math.ceil(Math.log(charCode) / Math.log(256));
-            for (var j = 0; j < cLen; j++) {
-                bytes.push((charCode << (j * 8)) & 0xFF);
+    chrome.storage.local.get(["userInformation"], function (data) {
+        if (!_.isEmpty(data)) {
+            $scope.obg = data.userInformation;
+            if (!_.isEmpty($scope.obg.personalAccessToken)) {
+                $scope.obg.personalAccessToken = sjcl.decrypt("password", $scope.obg.personalAccessToken);
             }
-        }
-        return bytes;
-    }
 
-    $scope.navigateToSettingsIfNew();
-    getPullRequests();
-    $scope.retrieveBacklogItems();
+            getPullRequests();
+            $scope.retrieveBacklogItems();
+            $scope.updateTokenVisibility();
+
+            chrome.storage.local.get(["selectedTab"], function (data) {
+                $scope.selectedTab = data.selectedTab;
+            });
+        }
+        $scope.navigateToSettingsIfNew();
+    });
 });

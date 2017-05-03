@@ -6,10 +6,10 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/angular-material.min.css">
 </head>
-<body ng-controller='todoCtrl'>
+<body ng-controller='homeCtrl'>
     <div>
         <div ng-if="!showSettings">
-            <md-tabs class="md-primary">
+            <md-tabs md-selected="selectedTab" class="md-primary">
                 <md-tab label="{{dateMinusZero}}" ng-click="changeDate('0')"></md-tab>
                 <md-tab label="{{dateMinusOne}}" ng-click="changeDate('1')"></md-tab>
                 <md-tab label="{{dateMinusTwo}}" ng-click="changeDate('2')"></md-tab>
@@ -20,7 +20,7 @@
             </md-tabs>
             <md-list class="no-padding ng-cloak md-primary">
                 <div ng-show="shouldShowPullRequests()">
-                    <md-subheader class="md-no-sticky  md-accent section-title">Pull Request</md-subheader>
+                    <md-subheader class="md-no-sticky  md-accent section-title">Pull requests</md-subheader>
                     <md-progress-circular class="spinner" ng-if="isLoadingPR" md-mode="indeterminate"></md-progress-circular>
                     <span ng-if="webRequestPullRequestFailed">Failed to retrieve</span>
                     <md-list-item class="secondary-button-padding" ng-if="!isLoadingPR" ng-repeat='todo in pullRequests'>
@@ -28,17 +28,17 @@
                             <span class="pr-title">{{todo.title}}</span>
                             <br />
                             <span>{{todo.description}}</span>
-                            <md-button ng-if="!todo.selected" class="md-primary md-secondary" ng-click="todo.selected = true">Copy</md-button>
+                            <md-button ng-if="!todo.selected" class="md-accent md-secondary" ng-click="todo.selected = true">Copy</md-button>
                         </div>
                         <div ng-if="todo.selected">
-                            <md-button ng-if="todo.selected" class="md-primary md-secondary " ngclipboard data-clipboard-text="{{todo.title}}" ng-click="todo.selected = false">Copy title</md-button>
-                            <md-button ng-if="todo.selected" class="md-primary md-secondary" ngclipboard data-clipboard-text="{{todo.description}}" ng-click="todo.selected = false">Copy description</md-button>
+                            <md-button ng-if="todo.selected" class="md-accent md-secondary " ngclipboard data-clipboard-text="{{todo.title}}" ng-click="todo.selected = false">Copy title</md-button>
+                            <md-button ng-if="todo.selected" class="md-accent md-secondary" ngclipboard data-clipboard-text="{{todo.description}}" ng-click="todo.selected = false">Copy description</md-button>
                         </div>
                         <md-divider></md-divider>
                     </md-list-item>
                 </div>
                 <div ng-show="shouldShowBacklog()">
-                    <md-subheader class="md-no-sticky md-accent section-title">Backlog Items</md-subheader>
+                    <md-subheader class="md-no-sticky md-accent section-title">Backlog items assigned to me</md-subheader>
                     <div>
                         <md-progress-circular class="spinner" ng-if="isLoadingBacklog" md-mode="indeterminate"></md-progress-circular>
                         <span ng-if="webRequestPullRequestFailed">Failed to retrieve</span>
@@ -67,11 +67,12 @@
             <div class="red" ng-show="tokenSet">Token Set!</div>
             <md-button ng-show="showReEnterTokenButton" ng-click="toggleShowReEnterTokenButton()">Re-Enter VSO personal access token</md-button><br />
             <md-input-container class="md-block" flex-gt-sm ng-hide="showReEnterTokenButton">
-                <label>VSO Personal Access Token</label>
+                <label>VSTS Personal Access Token</label>
 
                 <input ng-model="temporaryToken.value" ng-change="setPersonalAccessToken()" ng-blur="clearTempToken()">
                 Create a personal access token for this app from the <a target="_blank" href="https://www.visualstudio.com/en-us/docs/setup-admin/team-services/use-personal-access-tokens-to-authenticate">
                     VSTS Security section
+                    <img src="images/Access.png" class="pat-image"/>
                 </a>
             </md-input-container>
 
@@ -94,22 +95,26 @@
             </md-input-container>
         </div>
     </div>
-    <div class="container">
-        <md-button class="md-primary" ng-click="toggleSettingsVisibility()">{{settingsText}}</md-button>
-        <md-button class="md-primary" ng-click="refreshPage()">Refresh</md-button>
+    <div class="button-container">
+        <md-button class="md-secondary md-raised no-left-margin" ng-click="toggleSettingsVisibility()">{{settingsText}}</md-button>
+        <md-button class="md-secondary md-raised no-left-margin" ng-hide="showSettings" ng-click="refreshPage()">Refresh</md-button>
     </div>
     <script type="text/javascript" src="lib/jquery/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="lib/node-forge/dist/forge.all.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular.js"></script>
+    <script src="lib/lodash/lodash.min.js"></script>
     <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="lib/material/angular-animate.min.js"></script>
     <script type="text/javascript" src="lib/material/angular-aria.min.js"></script>
     <script type="text/javascript" src="lib/material/angular-material.min.js"></script>
+    <script src="lib/moment/moment.js"></script>
+    <script src="lib/moment/angular-moment.min.js"></script>
     <script type="text/javascript" src="lib/Clipboard/clipboard.min.js"></script>
+    <script src="lib/sjcl/sjcl.js"></script>
     <script type="text/javascript" src="lib/Clipboard/ngclipboard.min.js"></script>
     <script type="text/javascript" src="app/encrypter.js"></script>
     <script type="text/javascript" src="app/app.js"></script>
-    <script type="text/javascript" src="app/todoCtrl.js"></script>
+    <script type="text/javascript" src="app/homeCtrl.js"></script>
     <script type="text/javascript" src="app/vsoRepository.js"></script>
 </body>
 </html>
