@@ -1,4 +1,4 @@
-#VSTS Extension
+VSTS Extension
 ===
 
 Assists with filling in timesheets!
