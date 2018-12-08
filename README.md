@@ -1,7 +1,7 @@
-# ng-todo
-Minimal angular todo extension for Chrome
+#VSTS Extension
+===
 
-This is live example of tutorial:
+Assists with filling in timesheets!
 
-Grab it from chrome webstore: https://chrome.google.com/webstore/detail/aommafigioodamhobgffifgoonmpnmmc
-"# VSTS-Extension" 
+An Google chrome extension that displays what changes you have make the the Azure Dev Ops backlog and pull requests.
+
